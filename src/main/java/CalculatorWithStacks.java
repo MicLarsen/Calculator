@@ -16,6 +16,7 @@ public class CalculatorWithStacks {
     private DecimalFormat decimal;
 
     public CalculatorWithStacks() {
+        this.stack = new ArrayStack(40);
         this.scan = new Scanner(System.in);
         this.decimal = new DecimalFormat("####0.00");
     }
@@ -64,9 +65,8 @@ public class CalculatorWithStacks {
                     if (isOperator(splitted[length - 1]) && length == 1) {
                         operators = new ArrayStack(1);
                         operators.push(splitted[length - 1].trim());
-                        checkNumber = false;
                         System.out.println("stack:");
-                        printStack(operators, operators.size());                        
+                        printStack(stack, stack.size());
                         break OPERANTS;
                     } else {
                         while (true) {
@@ -78,7 +78,7 @@ public class CalculatorWithStacks {
                                 }
                                 checkNumber = false;
                                 System.out.println("stack:");
-                        printStack(operators ,operators.size());
+                                printStack(stack, stack.size());
                                 break OPERANTS;
                             }
                             if (!isOperator(splitted[length - 1]) && length != 0) {
@@ -100,43 +100,37 @@ public class CalculatorWithStacks {
                 while (checkNumber) {
                     double result = 0;
 
-                    if (!isNumber(splitted[length - 1])) {
-                        System.out.println("\ntypo please - try again");
-                        break NUMBER;
-                    }
+                   
                     if (!isNumber(splitted[length - 1]) && length != 0) {
                         System.out.println("\ntypo please - try again");
                         break NUMBER;
                     }
 
                     if (isNumber(splitted[length - 1])) {
-                        stack = new ArrayStack(splitted.length - operators.size());
-                        for (int i = 0; i < stack.size(); i++) {
+                        for (int i = 0; i < splitted.length; i++) {
                             if (isNumber(splitted[i])) {
                                 stack.push(splitted[i].trim());
                             }
                         }
-                        int operatorSize = operators.size();
-                        int stackSize = stack.size();
 
                         if (operators.size() >= stack.size()) {
                             System.out.println("\t\t\t#You have too many operants - please try again.\n");
                             break NUMBER;
                         } else if (operators.isEmpty()) {
                             System.out.println("\nstack:");
-                            printStack(stack, stackSize);
+                            printStack(stack, stack.size());
                             break NUMBER;
                         } else {
 
                             while (true) {
 
-                                if (operatorSize != 0) {
+                                while (operators.peek() != null && stack.size() >= 2) {
 
                                     String operator = (String) operators.pop();
                                     double num1 = Double.parseDouble(stack.pop().toString());
                                     double num2 = Double.parseDouble(stack.pop().toString());
 
-                                    result = calculateIt(num1, num2, operator);
+                                    result = calculateIt(num2, num1, operator);
                                     stack.push(result);
 
                                     System.out.println("\n\t\t#calculating: "
@@ -144,15 +138,13 @@ public class CalculatorWithStacks {
 
                                     System.out.println("stack:");
 
-                                    operatorSize--;
-                                    stackSize--;
+                                    if (operators.size() != 0) {
+                                    printOperants(operators, operators.size());
+                                    }
+                                        printStack(stack, stack.size());
 
-                                    printOperants(operators, operatorSize);
-                                    printStack(stack, stackSize);
-
-                                } else {
-                                    break NUMBER;
                                 }
+                                break NUMBER;
                             }
                         }
                     }
@@ -169,28 +161,31 @@ public class CalculatorWithStacks {
 
     private void printStack(ArrayStack stack, int stackSize) {
         for (int i = 0; i < stackSize; i++) {
-            System.out.println(stack.print(i));
+            if (stack.print(i) != null) {
+
+                System.out.println(stack.print(i));
+            }
         }
     }
 
     private double calculateIt(double num1, double num2, String operator) {
-        
+
         switch (operator.trim()) {
             case "-":
                 returnValue = decimal.format(num1 - num2).split(",");
-                return Double.parseDouble(returnValue[0]+"."+returnValue[1]);
+                return Double.parseDouble(returnValue[0] + "." + returnValue[1]);
             case "+":
-        returnValue = decimal.format(num1 + num2).split(",");
-                return Double.parseDouble(returnValue[0]+"."+returnValue[1]);
+                returnValue = decimal.format(num1 + num2).split(",");
+                return Double.parseDouble(returnValue[0] + "." + returnValue[1]);
             case "/":
-                 returnValue = decimal.format(num1 / num2).split(",");
-                return Double.parseDouble(returnValue[0]+"."+returnValue[1]);
+                returnValue = decimal.format(num1 / num2).split(",");
+                return Double.parseDouble(returnValue[0] + "." + returnValue[1]);
             case "*":
                 returnValue = decimal.format(num1 * num2).split(",");
-                return Double.parseDouble(returnValue[0]+"."+returnValue[1]);
+                return Double.parseDouble(returnValue[0] + "." + returnValue[1]);
             case "^":
                 returnValue = decimal.format(Math.pow((double) num1, (double) num2)).split(",");
-                return Double.parseDouble(returnValue[0]+"."+returnValue[1]);
+                return Double.parseDouble(returnValue[0] + "." + returnValue[1]);
             default:
                 return 0;
         }

@@ -35,7 +35,7 @@ public class ArrayStack<T> {
     }
     
     public int size() {
-        return data.length;
+        return top;
     }
     
     public T print(int i) {
